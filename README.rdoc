@@ -1,0 +1,21 @@
+A moonshine plugin to setup Redmine (Redmine.org).
+
+== Configure Email
+
+Configure your email settings in moonshine.yml like:
+
+  :redmine_email_yml:
+    :production:
+      :delivery_method: :async_sendmail
+
+Then include the recipe in your application_manifest.rb
+
+  recipe :redmine_email_yml
+
+== Run Plugin Migrations
+
+Include the recipe in your application_manifest.rb
+
+  recipe :redmine_plugin_migrations
+
+
