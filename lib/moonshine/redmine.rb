@@ -33,6 +33,10 @@ module Moonshine
     def redmine_file_uploads
       file("#{rails_root}/files/delete.me",
            :ensure => :absent)
+
+      file("#{configuration[:deploy_to]}/shared/files",
+           :ensure => :directory)
+
       file("#{rails_root}/files",
            :ensure => :link,
            :target => "#{configuration[:deploy_to]}/shared/files")
