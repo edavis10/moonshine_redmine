@@ -25,6 +25,18 @@ module Moonshine
     def redmine_plugin_migrations(options = {})
       rake 'db:migrate_plugins'
     end
+
+    # Symlink Redmine file uploads to the shared directory
+    #
+    #  recipe :redmine_file_uploads
+    #
+    def redmine_file_uploads
+      file("#{rails_root}/files/delete.me",
+           :ensure => :absent)
+      file("#{rails_root}/files",
+           :ensure => :link,
+           :target => "#{configuration[:deploy_to]}/shared/files")
+    end
     
     # Helper, since Rails' version isn't loading in time
     def moonshine_stringify_keys(h)
