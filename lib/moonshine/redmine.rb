@@ -82,7 +82,7 @@ module Moonshine
       hour   ||= '*'
       month  ||= '*'
 
-      fetch_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile redmine:fetch_changeset RAILS_ENV=#{ENV['RAILS_ENV']}"
+      fetch_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile redmine:fetch_changesets RAILS_ENV=#{ENV['RAILS_ENV']}"
       cron 'redmine:fetch_changesets', :command => fetch_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
     end
     
