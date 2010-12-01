@@ -41,6 +41,24 @@ Then configure the fetching time in moonshine.yml. All fields default to
       :hour:   '*'
       :month:  '*
 
+== Schedule fetching incoming email via IMAP
+
+Sets up the cronjob to receive incoming mail via IMAP. Add the recipe:
+
+  recipe :redmine_receive_imap
+
+Then configure the time and account in moonshine.yml. All fields default to
+'*' so make sure to set something (or it will run every minute)
+
+  :redmine:
+    :receive_imap
+      :host: 'imap.example.com'
+      :username: 'redmine@example.com'
+      :password: 'littlestreamsoftware'
+      :minute: '0'
+      :hour:   '*'
+      :month:  '*'
+
 == Schedule cache updates for the Redmine Rate plugin
 
 The Redmine Rate plugin uses caches to speed up calculations.  It includes

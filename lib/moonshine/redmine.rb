@@ -140,6 +140,43 @@ module Moonshine
       cron 'redmine:rate_plugin:cache:refresh_cost_cache', :command => update_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
     end
 
+
+    # Schedules the cronjob for fetching email via IMAP
+    #
+    # Configure the fetching in moonshine.yml. All fields default to * so
+    # make sure to set something (or it will run every minute).
+    #
+    #   :redmine:
+    #     :receive_imap
+    #       :host: 'imap.example.com'
+    #       :username: 'redmine@example.com'
+    #       :password: 'littlestreamsoftware'
+    #       :minute: '10'
+    #       :hour:   '0'
+    #       :month:  '*'
+    #
+    def redmine_receive_imap
+      if configuration[:redmine] && configuration[:redmine][:receive_imap]
+        imap_config = configuration[:redmine][:receive_imap]
+
+        host = imap_config[:host]
+        username = imap_config[:username]
+        password = imap_config[:password]
+        minute = imap_config[:minute]
+        hour = imap_config[:hour]
+        month = imap_config[:month]
+      end
+      host ||= 'localhost'
+      username ||= configuration[:user]
+      password ||= ''
+      minute ||= '*'
+      hour   ||= '*'
+      month  ||= '*'
+
+      imap_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile redmine:email:receive_imap RAILS_ENV=#{ENV['RAILS_ENV']} host='#{host}' username='#{username}' password='#{password}'"
+      cron 'redmine:receive_imap', :command => imap_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
+    end
+
     # Helper, since Rails' version isn't loading in time
     def moonshine_stringify_keys(h)
       h.inject({}) do |options, (key, value)|
