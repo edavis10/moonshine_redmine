@@ -85,7 +85,61 @@ module Moonshine
       fetch_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile redmine:fetch_changesets RAILS_ENV=#{ENV['RAILS_ENV']}"
       cron 'redmine:fetch_changesets', :command => fetch_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
     end
-    
+
+    # Schedules the cronjob for updating caching values in the redmine_rate plugin
+    #
+    # Configure the fetching time in moonshine.yml. All fields
+    # default to * so make sure to set something (or it will run every minute)
+    #
+    #   :redmine:
+    #     :redmine_rate:
+    #       :update_cost_cache:
+    #         :minute: '*/10'
+    #         :hour:   '*'
+    #         :month:  '*'
+    #
+    def redmine_rate_cache_update
+      if configuration[:redmine] && configuration[:redmine][:redmine_rate] && configuration[:redmine][:redmine_rate][:update_cost_cache]
+        cache_config = configuration[:redmine][:redmine_rate][:update_cost_cache]
+        minute = cache_config[:minute]
+        hour = cache_config[:hour]
+        month = cache_config[:month]
+      end
+      minute ||= '*'
+      hour   ||= '*'
+      month  ||= '*'
+
+      update_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile rate_plugin:cache:update_cost_cache RAILS_ENV=#{ENV['RAILS_ENV']}"
+      cron 'redmine:fetch_changesets', :command => update_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
+    end
+
+    # Schedules the cronjob for refreshing caching values in the redmine_rate plugin
+    #
+    # Configure the fetching time in moonshine.yml. All fields
+    # default to * so make sure to set something (or it will run every minute)
+    #
+    #   :redmine:
+    #     :redmine_rate:
+    #       :refresh_cost_cache:
+    #         :minute: '10'
+    #         :hour:   '0'
+    #         :month:  '*'
+    #
+    def redmine_rate_cache_refresh
+      if configuration[:redmine] && configuration[:redmine][:redmine_rate] && configuration[:redmine][:redmine_rate][:refresh_cost_cache]
+        cache_config = configuration[:redmine][:redmine_rate][:refresh_cost_cache]
+        minute = cache_config[:minute]
+        hour = cache_config[:hour]
+        month = cache_config[:month]
+      end
+      minute ||= '*'
+      hour   ||= '*'
+      month  ||= '*'
+
+      update_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile rate_plugin:cache:refresh_cost_cache RAILS_ENV=#{ENV['RAILS_ENV']}"
+      cron 'redmine:fetch_changesets', :command => update_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
+    end
+
     # Helper, since Rails' version isn't loading in time
     def moonshine_stringify_keys(h)
       h.inject({}) do |options, (key, value)|

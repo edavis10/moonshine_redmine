@@ -39,4 +39,31 @@ Then configure the fetching time in moonshine.yml. All fields default to
     :fetch_changesets:
       :minute: '*/10'
       :hour:   '*'
-      :month:  '*'
+      :month:  '*
+
+== Schedule cache updates for the Redmine Rate plugin
+
+The Redmine Rate plugin uses caches to speed up calculations.  It includes
+two rake tasks:
+
+* Update will only update caches that don't have a value
+* Refresh will clear and update all caches (i.e. purge and re-calculate)
+
+To schedule either or both, include the following recipes:
+
+  recipe :redmine_rate_cache_update
+  recipe :redmine_rate_cache_refresh
+
+Then configure the fetching time in moonshine.yml. All fields default to
+'*' so make sure to set something (or it will run every minute)
+
+  :redmine:
+    :redmine_rate:
+      :update_cost_cache:
+        :minute: '*/10'
+        :hour:   '*'
+        :month:  '*'
+      :refresh_cost_cache:
+        :minute: '10'
+        :hour:   '0'
+        :month:  '*'
