@@ -18,4 +18,10 @@ Include the recipe in your application_manifest.rb
 
   recipe :redmine_plugin_migrations
 
+== Install SCM tools
 
+Include any or all of the following recipes in your
+application_manifest.rb to install the SCM client tools:
+
+  recipe :redmine_subversion_client
+  recipe :redmine_git_client

@@ -41,6 +41,25 @@ module Moonshine
            :ensure => :link,
            :target => "#{configuration[:deploy_to]}/shared/files")
     end
+
+    # Install the subversion client needed for repository reads
+    #
+    #   recipe :redmine_subversion_client
+    #
+    def redmine_subversion_client
+      package :subversion, :ensure => :installed
+      package "subversion-tools", :ensure => :installed
+    end
+
+    # Install the git client needed for repository reads
+    #
+    #   recipe :redmine_git_client
+    #
+    def redmine_git_client
+      package "git-core", :ensure => :installed
+    end
+
+    # TODO: more recipes for other SCM tools
     
     # Helper, since Rails' version isn't loading in time
     def moonshine_stringify_keys(h)
