@@ -25,3 +25,18 @@ application_manifest.rb to install the SCM client tools:
 
   recipe :redmine_subversion_client
   recipe :redmine_git_client
+
+== Schedule a cronjob to fetch SCM changesets
+
+To fetch SCM changesets in the background, add the recipe:
+
+  recipe :redmine_fetch_changesets
+
+Then configure the fetching time in moonshine.yml. All fields default to
+'*' so make sure to set something (or it will run every minute)
+
+  :redmine:
+    :fetch_changesets:
+      :minute: '*/10'
+      :hour:   '*'
+      :month:  '*'

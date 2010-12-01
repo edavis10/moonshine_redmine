@@ -60,6 +60,31 @@ module Moonshine
     end
 
     # TODO: more recipes for other SCM tools
+
+    # Schedules the cronjob for fetching the SCM changesets
+    #
+    # Configure the fetching time in moonshine.yml. All fields
+    # default to * so make sure to set something (or it will run every minute)
+    #
+    #   :redmine:
+    #     :fetch_changesets:
+    #       :minute: '*/10'
+    #       :hour:   '*'
+    #       :month:  '*'
+    #
+    def redmine_fetch_changesets
+      if configuration[:redmine] && configuration[:redmine][:fetch_changesets]
+        minute = configuration[:redmine][:fetch_changesets][:minute]
+        hour = configuration[:redmine][:fetch_changesets][:hour]
+        month = configuration[:redmine][:fetch_changesets][:month]
+      end
+      minute ||= '*'
+      hour   ||= '*'
+      month  ||= '*'
+
+      fetch_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile redmine:fetch_changeset RAILS_ENV=#{ENV['RAILS_ENV']}"
+      cron 'redmine:fetch_changesets', :command => fetch_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
+    end
     
     # Helper, since Rails' version isn't loading in time
     def moonshine_stringify_keys(h)
