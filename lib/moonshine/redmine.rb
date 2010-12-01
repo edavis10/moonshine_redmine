@@ -110,7 +110,7 @@ module Moonshine
       month  ||= '*'
 
       update_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile rate_plugin:cache:update_cost_cache RAILS_ENV=#{ENV['RAILS_ENV']}"
-      cron 'redmine:fetch_changesets', :command => update_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
+      cron 'redmine:rate_plugin:cache:update_cost_cache', :command => update_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
     end
 
     # Schedules the cronjob for refreshing caching values in the redmine_rate plugin
@@ -137,7 +137,7 @@ module Moonshine
       month  ||= '*'
 
       update_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile rate_plugin:cache:refresh_cost_cache RAILS_ENV=#{ENV['RAILS_ENV']}"
-      cron 'redmine:fetch_changesets', :command => update_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
+      cron 'redmine:rate_plugin:cache:refresh_cost_cache', :command => update_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
     end
 
     # Helper, since Rails' version isn't loading in time
