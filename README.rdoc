@@ -85,3 +85,32 @@ Then configure the fetching time in moonshine.yml. All fields default to
         :minute: '10'
         :hour:   '0'
         :month:  '*'
+
+== Redmine SVN Repository Management
+
+To configure the Advanced SVN repository management, add the following config
+to your moonshine.yml
+
+  :redmine:
+    :repository_management:
+      :svn_directory: '/var/svn'
+      :svn_host: 'svn.example.com' # Needs to be separate from your Redmine domain
+      :svn_path: '/svn/' # https://svn.example/svn/
+      :svn_ssl: true # Or false to disable SSL
+      :svn_ip_address: '1.1.1.1' # SSL requires a separate ip address
+      # Only required on SSL setups. Will default to the main SSL certificate.
+      :certificate_file: /home/redmine/certs/svn.example.com.crt
+      :certificate_key_file: /home/redmine/certs/svn.example.com.key
+      :certificate_chain_file: /home/redmine/certs/gd_bundle.crt
+
+Once this is done, you need to add the following recipe to your application_manifest.rb.
+
+  recipe :redmine_advanced_svn_integration
+
+Optionally: the :redmine_advanced_svn_integration recipe sets up both repository
+creation (reposman.rb) and access control (Redmine.pm).  If you only want one or
+the other, you can use either of these sub recipes:
+
+    recipe :redmine_repository_management
+    recipe :redmine_repository_access_control
+

@@ -177,6 +177,126 @@ module Moonshine
       cron 'redmine:receive_imap', :command => imap_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
     end
 
+    # Sets up the Advanced SVN Management with Redmine (reposman.rb)
+    #
+    #  recipe :redmine_repository_management
+    def redmine_repository_management
+      redmine_option = if configuration[:ssl]
+                         "https://"
+                       else
+                         "http://"
+                       end
+      redmine_option += configuration[:domain]
+
+      file(svn_dir,
+           :ensure => :directory,
+           :group => 'www-data',
+           :owner => 'root',
+           :mode => '750')
+      
+      reposman_command = "/usr/bin/ruby #{configuration[:deploy_to]}/current/extra/svn/reposman.rb --redmine #{redmine_option} --svn-dir #{svn_dir} --owner www-data --url #{svn_url}"
+
+      cron 'redmine:repository_management', :command => reposman_command, :user => 'root', :minute => '*/15'
+
+    end
+
+    # Sets up the Advanced SVN Access Control with Redmine (Redmine.pm)
+    #
+    #   recipe :redmine_repository_access_control
+    def redmine_repository_access_control
+      package "libapache2-svn", :ensure => :installed
+      package "libapache-dbi-perl", :ensure => :installed
+      package "libapache2-mod-perl2", :ensure => :installed
+      package "libdbd-mysql-perl", :ensure => :installed
+      package "libdigest-sha1-perl", :ensure => :installed
+      package "libauthen-simple-ldap-perl", :ensure => :installed
+
+      exec("a2enmod dav")
+      exec("a2enmod dav_svn")
+      exec("a2enmod dav_fs")
+      exec("a2enmod perl")
+
+      file("/usr/lib/perl5/Apache/Redmine.pm",
+           :ensure => :link,
+           :target => "#{rails_root}/extra/svn/Redmine.pm")
+
+      recipe :redmine_svn_host
+    end
+
+    # Sets up the Advanced SVN Integration with Redmine
+    #
+    #  recipe :redmine_advanced_svn_integration
+    def redmine_advanced_svn_integration
+      recipe :redmine_repository_management
+      recipe :redmine_repository_access_control
+    end
+
+
+    # SVN helpers
+    #
+
+    # Creates an Apache2 vhost for SVN, with optional SSL suport
+    def redmine_svn_host
+      file("/srv/#{svn_host}",
+           :ensure => :directory,
+           :owner => configuration[:user])
+
+
+      file "/etc/apache2/sites-available/#{svn_host}",
+      :ensure => :present,
+      :content => template(File.join(File.dirname(__FILE__), 'templates', 'svn.vhost.erb')),
+      :notify => service("apache2"),
+      :require => file("/srv/#{svn_host}")
+
+      a2ensite svn_host
+    end
+
+    # Generates the url to use for the svn vhost
+    def svn_url
+      if svn_ssl?
+        "https://#{svn_host}/#{svn_path}"
+      else
+        "http://#{svn_host}/#{svn_path}"
+      end
+    end
+
+    # Is the svn vhost using ssl?
+    def svn_ssl?
+      if configuration[:redmine] && configuration[:redmine][:repository_management] && configuration[:redmine][:repository_management][:svn_ssl]
+        true
+      else
+        false
+      end
+    end
+
+    # Generates the hostname for the svn vhost
+    # Defaults to the main domain
+    def svn_host
+      host = configuration[:redmine][:repository_management][:svn_host] if configuration[:redmine] && configuration[:redmine][:repository_management]
+      host ||= configuration[:domain]
+    end
+
+    # Generates the url path to the svn repositories
+    # Defaults to /svn/
+    def svn_path
+      path = configuration[:redmine][:repository_management][:svn_path] if configuration[:redmine] && configuration[:redmine][:repository_management]
+      path ||= '/svn/'
+    end
+
+    # Generates the dedicated ip address to use for the svn vhost
+    # Defaults to the ipaddress found by Facter
+    def svn_ip_address
+      ip = configuration[:redmine][:repository_management][:svn_ip_address] if configuration[:redmine] && configuration[:redmine][:repository_management]
+      ip ||= Facter.to_hash['ipaddress']
+    end
+
+    # Generates the filesystem path to the svn repositories
+    # Defaults to /var/svn
+    def svn_dir
+      svn_dir = configuration[:redmine][:repository_management][:svn_directory] if configuration[:redmine] && configuration[:redmine][:repository_management]
+      svn_dir ||= '/var/svn'
+    end
+        
     # Helper, since Rails' version isn't loading in time
     def moonshine_stringify_keys(h)
       h.inject({}) do |options, (key, value)|
