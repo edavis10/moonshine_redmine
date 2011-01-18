@@ -31,14 +31,11 @@ module Moonshine
     #  recipe :redmine_file_uploads
     #
     def redmine_file_uploads
-      file("#{rails_root}/files/delete.me",
-           :links => :ignore,
-           :ensure => :absent)
-
       file("#{configuration[:deploy_to]}/shared/files",
            :ensure => :directory)
 
       file("#{rails_root}/files",
+           :force => true,
            :ensure => :link,
            :target => "#{configuration[:deploy_to]}/shared/files")
     end
