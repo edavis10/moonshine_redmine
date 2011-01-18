@@ -32,11 +32,13 @@ module Moonshine
     #
     def redmine_file_uploads
       file("#{configuration[:deploy_to]}/shared/files",
+           :owner => configuration[:user],
            :ensure => :directory)
 
       file("#{rails_root}/files",
            :force => true,
            :ensure => :link,
+           :owner => configuration[:user],
            :target => "#{configuration[:deploy_to]}/shared/files")
     end
 
