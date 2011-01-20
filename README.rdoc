@@ -53,11 +53,14 @@ Then configure the time and account in moonshine.yml. All fields default to
   :redmine:
     :receive_imap
       :host: 'imap.example.com'
+      :ssl: '1'
+      :port: '993'
       :username: 'redmine@example.com'
       :password: 'littlestreamsoftware'
       :minute: '0'
       :hour:   '*'
       :month:  '*'
+      :extra_options: "move_on_success='success' project='moonshine'"
 
 == Schedule cache updates for the Redmine Rate plugin
 

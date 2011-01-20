@@ -149,31 +149,40 @@ module Moonshine
     #   :redmine:
     #     :receive_imap
     #       :host: 'imap.example.com'
+    #       :ssl: '1'
+    #       :port: '993'
     #       :username: 'redmine@example.com'
     #       :password: 'littlestreamsoftware'
     #       :minute: '10'
     #       :hour:   '0'
     #       :month:  '*'
+    #       :extra_options: "move_on_success='success'"
     #
     def redmine_receive_imap
       if configuration[:redmine] && configuration[:redmine][:receive_imap]
         imap_config = configuration[:redmine][:receive_imap]
 
         host = imap_config[:host]
+        ssl = imap_config[:ssl]
+        port = imap_config[:port]
         username = imap_config[:username]
         password = imap_config[:password]
         minute = imap_config[:minute]
         hour = imap_config[:hour]
         month = imap_config[:month]
+        extra_options = imap_config[:extra_options]
       end
       host ||= 'localhost'
+      ssl ||= '0'
+      port ||= '143'
       username ||= configuration[:user]
       password ||= ''
       minute ||= '*'
       hour   ||= '*'
       month  ||= '*'
+      extra_options ||= ''
 
-      imap_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile redmine:email:receive_imap RAILS_ENV=#{ENV['RAILS_ENV']} host='#{host}' username='#{username}' password='#{password}'"
+      imap_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile redmine:email:receive_imap RAILS_ENV=#{ENV['RAILS_ENV']} host='#{host}' ssl='#{ssl}' port='#{port}' username='#{username}' password='#{password}' #{extra_options}"
       cron 'redmine:receive_imap', :command => imap_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
     end
 
