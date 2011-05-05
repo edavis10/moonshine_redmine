@@ -186,6 +186,49 @@ module Moonshine
       cron 'redmine:receive_imap', :command => imap_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
     end
 
+    # Schedules the cronjob for fetching email via POP
+    #
+    # Configure the fetching in moonshine.yml. All fields default to * so
+    # make sure to set something (or it will run every minute).
+    #
+    #   :redmine:
+    #     :receive_pop
+    #       :host: 'imap.example.com'
+    #       :port: '110'
+    #       :username: 'redmine@example.com'
+    #       :password: 'littlestreamsoftware'
+    #       :minute: '10'
+    #       :hour:   '0'
+    #       :month:  '*'
+    #       :extra_options: "apop=1 delete_unprocessed=1"
+    #
+    def redmine_receive_pop
+      if configuration[:redmine] && configuration[:redmine][:receive_pop]
+        pop_config = configuration[:redmine][:receive_pop]
+
+        host = pop_config[:host]
+        port = pop_config[:port]
+        username = pop_config[:username]
+        password = pop_config[:password]
+        minute = pop_config[:minute]
+        hour = pop_config[:hour]
+        month = pop_config[:month]
+        extra_options = pop_config[:extra_options]
+      end
+      host ||= 'localhost'
+      ssl ||= '0'
+      port ||= '143'
+      username ||= configuration[:user]
+      password ||= ''
+      minute ||= '*'
+      hour   ||= '*'
+      month  ||= '*'
+      extra_options ||= ''
+
+      pop_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile redmine:email:receive_pop3 RAILS_ENV=#{ENV['RAILS_ENV']} host='#{host}' port='#{port}' username='#{username}' password='#{password}' #{extra_options}"
+      cron 'redmine:receive_pop', :command => pop_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
+    end
+
     # Sets up the Advanced SVN Management with Redmine (reposman.rb)
     #
     #  recipe :redmine_repository_management

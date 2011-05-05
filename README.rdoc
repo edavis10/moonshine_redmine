@@ -62,6 +62,26 @@ Then configure the time and account in moonshine.yml. All fields default to
       :month:  '*'
       :extra_options: "move_on_success='success' project='moonshine'"
 
+== Schedule fetching incoming email via POP
+
+Sets up the cronjob to receive incoming mail via POP. Add the recipe:
+
+  recipe :redmine_receive_pop
+
+Then configure the time and account in moonshine.yml. All fields default to
+'*' so make sure to set something (or it will run every minute)
+
+  :redmine:
+    :receive_pop
+      :host: 'pop.example.com'
+      :port: '110'
+      :username: 'redmine@example.com'
+      :password: 'littlestreamsoftware'
+      :minute: '0'
+      :hour:   '*'
+      :month:  '*'
+      :extra_options: "apop=1"
+
 == Schedule cache updates for the Redmine Rate plugin
 
 The Redmine Rate plugin uses caches to speed up calculations.  It includes
