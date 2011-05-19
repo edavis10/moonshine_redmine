@@ -83,7 +83,7 @@ module Moonshine
       month  ||= '*'
 
       fetch_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile redmine:fetch_changesets RAILS_ENV=#{ENV['RAILS_ENV']}"
-      cron 'redmine:fetch_changesets', :command => fetch_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
+      cron "redmine:fetch_changesets/#{deploy_stage}", :command => fetch_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
     end
 
     # Schedules the cronjob for updating caching values in the redmine_rate plugin
@@ -110,7 +110,7 @@ module Moonshine
       month  ||= '*'
 
       update_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile rate_plugin:cache:update_cost_cache RAILS_ENV=#{ENV['RAILS_ENV']}"
-      cron 'redmine:rate_plugin:cache:update_cost_cache', :command => update_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
+      cron "redmine:rate_plugin:cache:update_cost_cache/#{deploy_stage}", :command => update_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
     end
 
     # Schedules the cronjob for refreshing caching values in the redmine_rate plugin
@@ -137,7 +137,7 @@ module Moonshine
       month  ||= '*'
 
       update_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile rate_plugin:cache:refresh_cost_cache RAILS_ENV=#{ENV['RAILS_ENV']}"
-      cron 'redmine:rate_plugin:cache:refresh_cost_cache', :command => update_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
+      cron "redmine:rate_plugin:cache:refresh_cost_cache/#{deploy_stage}", :command => update_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
     end
 
 
@@ -183,7 +183,7 @@ module Moonshine
       extra_options ||= ''
 
       imap_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile redmine:email:receive_imap RAILS_ENV=#{ENV['RAILS_ENV']} host='#{host}' ssl='#{ssl}' port='#{port}' username='#{username}' password='#{password}' #{extra_options}"
-      cron 'redmine:receive_imap', :command => imap_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
+      cron "redmine:receive_imap/#{deploy_stage}", :command => imap_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
     end
 
     # Schedules the cronjob for fetching email via POP
@@ -226,7 +226,7 @@ module Moonshine
       extra_options ||= ''
 
       pop_task = "/usr/bin/rake -f #{configuration[:deploy_to]}/current/Rakefile redmine:email:receive_pop3 RAILS_ENV=#{ENV['RAILS_ENV']} host='#{host}' port='#{port}' username='#{username}' password='#{password}' #{extra_options}"
-      cron 'redmine:receive_pop', :command => pop_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
+      cron "redmine:receive_pop/#{deploy_stage}", :command => pop_task, :user => configuration[:user], :minute => minute, :hour => hour, :month => month
     end
 
     # Sets up the Advanced SVN Management with Redmine (reposman.rb)
@@ -248,7 +248,7 @@ module Moonshine
       
       reposman_command = "/usr/bin/ruby #{configuration[:deploy_to]}/current/extra/svn/reposman.rb --redmine #{redmine_option} --svn-dir #{svn_dir} --owner www-data --url #{svn_url}"
 
-      cron 'redmine:repository_management', :command => reposman_command, :user => 'root', :minute => '*/15'
+      cron "redmine:repository_management/#{deploy_stage}", :command => reposman_command, :user => 'root', :minute => '*/15'
 
     end
 
