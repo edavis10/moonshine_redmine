@@ -323,8 +323,14 @@ module Moonshine
     #   http://example.com/svn => svn
     def redmine_svn_host_on_app
       # Don't overwrite user's custom config, just append to the end
-      existing_non_ssl = configuration[:passenger][:vhost_extra].to_s + "\n"
-      existing_ssl = configuration[:ssl][:vhost_extra].to_s + "\n"
+      if configuration[:passenger] && configuration[:passenger][:vhost_extra]
+        existing_non_ssl = configuration[:passenger][:vhost_extra].to_s + "\n"
+      end
+      if configuration[:ssl] && configuration[:ssl][:vhost_extra]
+        existing_ssl = configuration[:ssl][:vhost_extra].to_s + "\n"
+      end
+      existing_non_ssl ||= "\n"
+      existing_ssl ||= "\n"
 
       # Add the partial config
       file("/etc/apache2/svn-hosting.conf",
