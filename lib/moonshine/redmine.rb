@@ -348,6 +348,11 @@ module Moonshine
                     :vhost_extra => existing_ssl + svn_hosting_configuration
                   }
                 })
+
+      exec("reconfigure_vhost_for_svn_hosting",
+           :cwd => '/',
+           :command => 'test .', # no-op
+           :before => file("/etc/apache2/sites-available/#{configuration[:application]}"))
     end
     
     # Generates the url to use for the svn vhost
