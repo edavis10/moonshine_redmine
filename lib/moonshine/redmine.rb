@@ -247,7 +247,7 @@ module Moonshine
            :mode => '750')
       repoman_api_key = configuration[:redmine][:repository_management][:api_key]
       
-      reposman_command = "cd #{configuration[:deploy_to]}/current #{try_bundle_exec}ruby #{configuration[:deploy_to]}/current/extra/svn/reposman.rb --redmine #{redmine_option} --svn-dir #{svn_dir} --owner www-data --key=#{repoman_api_key} --url #{svn_url}"
+      reposman_command = "cd #{configuration[:deploy_to]}/current && #{try_bundle_exec}ruby #{configuration[:deploy_to]}/current/extra/svn/reposman.rb --redmine #{redmine_option} --svn-dir #{svn_dir} --owner www-data --key=#{repoman_api_key} --url #{svn_url}"
 
       cron "redmine:repository_management/#{deploy_stage}", :command => reposman_command, :user => 'root', :minute => '*/15'
 
