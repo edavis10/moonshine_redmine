@@ -272,7 +272,14 @@ module Moonshine
            :ensure => :link,
            :target => "#{rails_root}/extra/svn/Redmine.pm")
 
-      recipe :redmine_svn_host
+      if configuration[:redmine] &&
+          configuration[:redmine][:repository_management] &&
+          configuration[:redmine][:repository_management][:use_app_host]
+        recipe :redmine_svn_host_on_app
+      else
+        recipe :redmine_svn_host
+      end
+      
     end
 
     # Sets up the Advanced SVN Integration with Redmine
@@ -300,9 +307,43 @@ module Moonshine
       :notify => service("apache2"),
       :require => file("/srv/#{svn_host}")
 
+      file "/etc/apache2/svn-hosting.conf",
+      :ensure => :present,
+      :content => template(File.join(File.dirname(__FILE__), 'templates', 'svn.hosting.erb')),
+      :notify => service("apache2")
+
       a2ensite svn_host
     end
 
+    # Adds the svn hosting configuration to the app vhost, instead of
+    # it's own vhost.
+    #
+    # Example
+    #   http://example.com/ => ChiliProject
+    #   http://example.com/svn => svn
+    def redmine_svn_host_on_app
+      # Don't overwrite user's custom config, just append to the end
+      existing_non_ssl = configuration[:passenger][:vhost_extra].to_s + "\n"
+      existing_ssl = configuration[:ssl][:vhost_extra].to_s + "\n"
+
+      # Add the partial config
+      file("/etc/apache2/svn-hosting.conf",
+           :ensure => :present,
+           :content => template(File.join(File.dirname(__FILE__), 'templates', 'svn.hosting.erb')),
+           :notify => service("apache2"))
+
+      svn_hosting_configuration = "Include /etc/apache2/svn-hosting.conf"
+
+      configure({
+                  :passenger => {
+                    :vhost_extra => existing_non_ssl + svn_hosting_configuration
+                  },
+                  :ssl => {
+                    :vhost_extra => existing_ssl + svn_hosting_configuration
+                  }
+                })
+    end
+    
     # Generates the url to use for the svn vhost
     def svn_url
       if svn_ssl?

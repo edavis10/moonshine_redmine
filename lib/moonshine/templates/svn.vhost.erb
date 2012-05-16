@@ -27,46 +27,7 @@
 
   RailsAutoDetect off
 
-  # Redmine Subversion Access
-  PerlLoadModule Apache::Redmine
-  <Location /svn>
-    DAV svn
-    SVNParentPath "<%= svn_dir %>" 
-    Order deny,allow
-    Deny from all
-    Satisfy any
-    <% if svn_ssl? %>
-    SSLRequireSSL
-    <% end %>
-
-    PerlAccessHandler Apache::Authn::Redmine::access_handler
-    PerlAuthenHandler Apache::Authn::Redmine::authen_handler
-    AuthType Basic
-    AuthName "SVN Repository" 
-
-    #read-only access    
-    <Limit GET PROPFIND OPTIONS REPORT>
-       Require valid-user
-       Allow from <%= Facter.to_hash['ipaddress'] %>
-       Allow from <%= svn_ip_address %>
-       # Allow from another-ip
-       Satisfy any
-    </Limit>
-    # write access
-    <LimitExcept GET PROPFIND OPTIONS REPORT>
-      Require valid-user
-    </LimitExcept>
-
-    ## for mysql
-    RedmineDSN "DBI:mysql:database=<%= configuration[:database][ENV['RAILS_ENV']][:database] %>;host=<%= configuration[:database][ENV['RAILS_ENV']][:host]%>" 
-    ## for postgres
-    # RedmineDSN "DBI:Pg:dbname=databasename;host=my.db.server" 
-    ## for SQLite3
-    # RedmineDSN "DBI:SQLite:dbname=database.db" 
-
-    RedmineDbUser "<%= configuration[:database][ENV['RAILS_ENV']][:username]%>"
-    RedmineDbPass "<%= configuration[:database][ENV['RAILS_ENV']][:password]%>"
-  </Location>
+  Include /etc/apache2/svn-hosting.conf
 
 </VirtualHost>
 

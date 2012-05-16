@@ -137,3 +137,12 @@ the other, you can use either of these sub recipes:
     recipe :redmine_repository_management
     recipe :redmine_repository_access_control
 
+Optionally: Instead of using two vhosts (one for app and one for svn), the svn hosting
+can be added directly to the app vhost. The only requirement is that the svn path doesn't
+conflict with any app paths. 'svn/' is a good path, 'projects/' is a bad one that will
+conflict.
+
+  :redmine:
+    :repository_management:
+      :use_app_host: false
+      ... (other config)
