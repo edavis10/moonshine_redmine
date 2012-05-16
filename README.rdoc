@@ -116,6 +116,7 @@ to your moonshine.yml
 
   :redmine:
     :repository_management:
+      :api_key: 'ABC123' # (Required) From Admin > Settings > Repository > API Key.
       :svn_directory: '/var/svn'
       :svn_host: 'svn.example.com' # Needs to be separate from your Redmine domain
       :svn_path: '/svn/' # https://svn.example/svn/
